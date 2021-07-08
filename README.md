@@ -12,7 +12,7 @@ choices, considering the above factors.
 
 In a nutshell:
 
-#### -Windows 10 uses the Windows winmm.dll Multimedia API to play sounds and the Python Winsound module to loop background sounds.  
+#### -Windows 10 uses the Windows winmm.dll Multimedia API to play sounds and the Python 'winsound' module to loop background sounds.  
 (Windows will only loop one background sound at a time.)
 #### -Linux uses ALSA which is part of the Linux kernel since version 2.6 and later
 #### -MacOS uses the afplay module which is present OS X 10.5 and later
@@ -83,15 +83,15 @@ playwave("coolhipsong.wav",block=True)
 
 * Note: commands below will work, but you cannot stop the song, because your progam will be blocked until the song is done playing
 
-mysong=playwave("coolhipstersong.wav",1) #-> this plays the wav file synchronously and also returns the song subprocess
+mysong=playwave("coolhipstersong.wav",1) #-> this plays the wav file synchronously and also returns the song reference
 
 or 
 
-mysong=playwave("coolhipstersong.wav",block=True) #-> this plays the wav file synchronously and also returns the song subprocess
+mysong=playwave("coolhipstersong.wav",block=True) #-> this plays the wav file synchronously and also returns the song reference
 
 
 ```
-#### To play a wave file in a continous loop:
+#### To play a wave file in a continuous loop:
 
 ```
 myloop=loopwave("mybackgroundsong.wav")
@@ -119,21 +119,21 @@ https://github.com/michaelgundlach/mp3play
 & https://github.com/TaylorSMarks/playsound/blob/master/playsound.py
 
 #### Playing Sounds in Windows:
-This method of playing sounds allows for multiple simultaneous sounds, works well and has been used successfully in seveal projects.  As long as this dynamically linked library is bundled with the current version of Windows, I plan to use this as the preferred method of playing sounds unless there is a compelling reason to change.  In this case I am using the reasoning "If it's not broke, don't fix it.".  Another advantage is it plays mp3s and other formats as well, not just .wav files.  It works well, is stable, loads and executes quickly, and has essentially never caused me any problems.  
+This method of playing sounds allows for multiple simultaneous sounds, works well and has been used successfully in several projects.  As long as this dynamically linked library is bundled with the current version of Windows, I plan to use this as the preferred method of playing sounds unless there is a compelling reason to change.  In this case, I am using the reasoning "If it's not broke, don't fix it.".  Another advantage is it plays mp3s and other formats as well, not just .wav files.  It works well, is stable, loads and executes quickly, and has essentially never caused me any problems.  
 
-The Python Winsound module on the other hand, is at least to me a bit odd in its syntax, less intuitive, and only uses wave files.  You basically can't play async more than one wave at a time.  This is severely limiting, so I don't prefer it for playing sounds.
+The Python `winsound` module on the other hand, is at least to me a bit odd in its syntax, less intuitive, and only uses wave files.  You basically can't play more than one wave at a time asynchronously.  This is severely limiting, so I don't prefer it for playing sounds.
 
-Calling the winsound.PlaySound module through the OS system works, but not does not execute as quickly.  This is not a bad approach however for background sounds.
+Calling the winsound.PlaySound module through the OS system works, but not does not execute as quickly.  This may not be a bad approach, however, for background sounds whose fine-timing is not critical.
 
 #### Looping Sounds in Windows:
 
-In this case, I do use the Python winsound module to loop sounds.  This is easy to implement, it does not conflict with sounds produced with the winmm.dll library, and starts and stops quickly.  It is however, limited to just one background at a time, but considering alternatives, this seems like the best choice (see below if you really need more than one background loop at at time).
+In this case, I do use the Python `winsound` module to loop sounds.  This is easy to implement, it does not conflict with sounds produced with the winmm.dll library, and starts and stops quickly.  It is however, limited to just one background at a time, but considering alternatives, this seems like the best choice (see below if you really need more than one background loop at at time).
 
 ##### Problems using winmm.dll to loop sounds.
 
 It is possible to use windmm.dll for looping also with multiprocessing.  However, this requires very careful consideration when implementing the code in a GUI, as the multiprocessing module behaves differently under the Windows OS.
 
-For example, I have used the winmm.dll sound playing function to loop sounds and I used the Python multiprocessing module to achieve this.  I started off by making a looping process with a while loop.  I started and stopped the process using the multiprocessing module.  I used process.terminate() to stop the loop.  This did work, but the problem with this method is you have to be really careful about how you are implementing the process in a user interface.  If you are using tkinter for example, when you start the process, the process will inheret its parent's resources.  Sometimes for example, a whole new root window will appear when a process is launched.  This can be worked around, but it requires structuring your GUI in a very specific way, so as to initialize the GUI outside of the main process (eg.  `if __name__ ==__'main'__: put your GUI here`, etc).  So I don't think this is a good solution - forcing someone only to design a GUI in a certain way just to use your sound module.  So I have avoided this approach.  Really the main issue is that multiprocessing is not actually implemented exactly in all 3 operating systems (Windows, MacOS, and Linux.)
+For example, I have used the winmm.dll sound playing function to loop sounds and I used the Python multiprocessing module to achieve this.  I started off by making a looping process with a while loop.  I started and stopped the process using the multiprocessing module.  I used process.terminate() to stop the loop.  This did work, but the problem with this method is you have to be really careful about how you are implementing the process in a user interface.  If you are using tkinter for example, when you start the process, the process will inherit its parent's resources.  Sometimes for example, a whole new root window will appear when a process is launched.  This can be worked around, but it requires structuring your GUI in a very specific way, so as to initialize the GUI outside of the main process (eg.  `if __name__ ==__'main'__: put your GUI here`, etc).  So I don't think this is a good solution - forcing someone only to design a GUI in a certain way just to use your sound module.  So I have avoided this approach.  Really the main issue is that multiprocessing is not actually implemented exactly the same in all 3 operating systems (Windows, MacOS, and Linux.)
 
 ##### Using OS System calls in Windows to loop sounds.
 
@@ -141,10 +141,10 @@ You can loop sounds by using OS system calls in the style of using command line 
 
 See https://pypi.org/project/oswaveplayer/ for an example.
 
-This is not a bad approach, but there is a little delay  with the sound launch using the command line version.  This may not be a big issue for you when playing background music.  If you really need multiple background sounds at once, your best bet would be to use another module or to add the oswaveplayer to your project with the import statement:
+This is not a bad approach, but there is a little delay with the sound launch using the command line version.  This may not be a big issue for you when playing background music.  If you really need multiple background sounds at once, your best bet would be to use another module or to add the oswaveplayer to your project with the import statement:
 
 ```
-from oswave import oswaveplayer
+from oswave import oswaveplayer        #(this can be installed with "pip install oswaveplayer")
 ```
 then use:
 ```
@@ -158,16 +158,16 @@ This is not a bad approach, but due to the perceptible delay in playing the soun
 
 ### Linux and MacOS
 
-`aplay` and `afplay` system calls work great on Linux and 'MacOS'.  I see no reason to invoke different methods at this point in time.  I do not want to concern myself with trying to make this module work with significantly older versions of MacOS before afplay was available.  My perception is that people typically would rather use Linux on an old computer systems instead of loading old versions of MacOS.  Afplay has been present for some time now on MacOS.  Please contact me if you think this really needs to work on older versions of MacOS.  Additionally, Linux has been using ALSA in its main kernal for close to 20 years now, so using ALSA satisfies me.  There are other approaches possible, but their use seems less intuitive, harder to maintain, and overall unjustified.
+`aplay` and `afplay` system calls work great on Linux and 'MacOS'.  I see no reason to invoke different methods at this point in time.  I do not want to concern myself with trying to make this module work with significantly older versions of MacOS before `afplay` was available.  My perception is that people typically would rather use Linux on an old computer systems instead of loading old versions of MacOS.  `afplay` has been present for some time now on MacOS.  Please contact me if you think this really needs to work on older versions of MacOS.  Additionally, Linux has been using ALSA in its main kernel for close to 20 years now, so using ALSA satisfies me.  There are other approaches possible, but their use seems less intuitive, harder to maintain, and overall unjustified.
 
 #### You may not need a looping function to loop sounds:
 ##### A note on looping sounds in general:
-If you using a game loop in game building, you don't actually need to use these looping functions at all (although it may be a little more convenient).  You may notice that these modules all contain a function called getIsPlaying(yoursound).  You can simply implement a check in your game loop to see if yoursong is playing.  If it is, don't do anything.  If it is not, play the sound with `yoursound=playwave("yourfilename.wav")`.  Maybe check every 10 frames or something like that.
+If you using a game loop in game building, you don't actually need to use these looping functions at all (although it may be a little more convenient).  You may notice that this module, and other packages I have written, all contain a function called getIsPlaying(yoursound).  You can simply implement a check in your game loop to see if yoursong is playing.  If it is, don't do anything.  If it is not, play the sound with `yoursound=playwave("yourfilename.wav")`.  Maybe check every 10 frames or something like that in the game loop.
 
 ### Notes about using this module as a replacement in the playsound module:
 
-Additionally, I included an alias to the function named 'playsound', and if used, the default block will be true, or synchronous play.  This way, the
-module can be used in place of the playsound module (https://github.com/TaylorSMarks/playsound/blob/master/playsound.py) with the same syntax.  If the playsound module does not work for you, as it is no longer maintained, you can load this module and use the import statement below for .wav files only.
+Additionally, I included an alias/reference to the function named 'playsound', and if used, the default block will be true, or synchronous play.  This way, the
+module can be used in place of the playsound module (https://github.com/TaylorSMarks/playsound/blob/master/playsound.py) with the same syntax.  If the playsound module is no longer maintained or otherwise does not work for you, you can load this module and use the import statement below for .wav files only.
 
 Use:
 ```
