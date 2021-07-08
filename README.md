@@ -143,16 +143,21 @@ See https://pypi.org/project/oswaveplayer/ for an example.
 
 This is not a bad approach, but there is a little delay  with the sound launch using the command line version.  This may not be a big issue for you when playing background music.  If you really need multiple background sounds at once, your best bet would be to use another module or to add the oswaveplayer to your project with the import statement:
            
-           from oswave import oswaveplayer 
-           then use:
+`from oswave import oswaveplayer` 
 
-           backgroundSong = oswaveplayer.loopwave("yourfilename")
+then use:
 
-           and
+`backgroundSong = oswaveplayer.loopwave("yourfilename.wav")`
 
-           oswaveplayer.stoploop(backgroundSong)
+and
 
-This is not a bad approach, but due to the perceptible delay in playing the sound, it is not preferred to me.  You can also, look over the source code to see how to launch sounds using this approach, as it is very basic.
+`oswaveplayer.stoploop(backgroundSong)`
+
+This is not a bad approach, but due to the perceptible delay in playing the sound, it is not preferred to me.  You can also look over the source code to see how to launch sounds using this approach, as it is very basic.
+
+### Linux and MacOS
+
+`aplay` and `afplay` system calls work great on Linux and 'MacOS'.  I see no reason to invoke different methods at this point in time.  I do not want to concern myself with trying to make this module work with significantly older versions of MacOS before afplay was available.  My perception is that people typically would rather use Linux on an old computer systems instead of loading old versions of MacOS.  Afplay has been present for some time now on MacOS.  Please contact me if you think this really needs to work on older versions of MacOS.  Additionally, Linux has been using ALSA in its main kernal for close to 20 years now, so using ALSA satisfies me.  There are other approaches possible, but their use seems less intuitive, harder to maintain, and overall unjustified.
 
 #### You may not need a looping function to loop sounds:
 ##### A note on looping sounds in general:
