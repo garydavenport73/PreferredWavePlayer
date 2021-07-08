@@ -142,17 +142,18 @@ You can loop sounds by using OS system calls in the style of using command line 
 See https://pypi.org/project/oswaveplayer/ for an example.
 
 This is not a bad approach, but there is a little delay  with the sound launch using the command line version.  This may not be a big issue for you when playing background music.  If you really need multiple background sounds at once, your best bet would be to use another module or to add the oswaveplayer to your project with the import statement:
-           
-`from oswave import oswaveplayer` 
 
+```
+from oswave import oswaveplayer
+```
 then use:
-
-`backgroundSong = oswaveplayer.loopwave("yourfilename.wav")`
-
+```
+backgroundSong = oswaveplayer.loopwave("yourfilename.wav")
+```
 and
-
-`oswaveplayer.stoploop(backgroundSong)`
-
+```
+oswaveplayer.stoploop(backgroundSong)
+```
 This is not a bad approach, but due to the perceptible delay in playing the sound, it is not preferred to me.  You can also look over the source code to see how to launch sounds using this approach, as it is very basic.
 
 ### Linux and MacOS
@@ -171,6 +172,5 @@ module can be used in place of the playsound module (https://github.com/TaylorSM
 Use:
 ```
 from preferredwave.preferredwaveplayer import playsound
-
 ```
 for backwards compatibility with the playsound module - .wav files only.
