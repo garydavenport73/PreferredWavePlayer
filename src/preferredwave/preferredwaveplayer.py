@@ -49,6 +49,8 @@ class SingleSoundWindows:
         self.P=None
         self.fileName=""
         self.isSongPlaying=False
+        self.alias=""
+        self.loopAlias=""
 
     # typical process for using winmm.dll
     def _processWindowsCommand(self,commmandString):
@@ -57,71 +59,43 @@ class SingleSoundWindows:
         windll.winmm.mciSendStringA(command, buf, 254, 0)
         return buf.value
 
-    # this function is invoked to make sure that when the end of the song
-    # is reached, the sound is stopped (maybe not needed), then closed.
-    #
-    # it is sent of by a thread.  In the meantime, if the sound is already 
-    # closed or stopped, it will still execute, but causes no harm.
-    # it is to try and ensure that the sound will not remain open in memory.
-    def _closeAliasAfterDuration(self):
-        sleep(float(self.durationInMS) / 1000.0)   
-        str1="stop "+self.alias
-        self._processWindowsCommand(str1)
-        str1="close "+self.alias
-        self._processWindowsCommand(str1)
-
-    # make an alias, set the time format, get the length of the song,
-    # play the song.
-    # For Sync play - sleep until song over, then stop and close alias.
-    # For Async - send off thread that will close alias after the sounds
-    #   duration, whether the sound was already closed or not.
+    # make an alias, play the song.
+    # For Sync play - use the wait flag, then stop and close alias.
+    # For Async - unable to close.
     def playwave(self,fileName, block=True):
         self.fileName=fileName
-        alias = 'playwave_' + str(random())
-        str1="open \""+self.fileName+"\""+" alias "+alias
+        #make an alias
+        self.alias = 'soundplay_' + str(random())
+        str1="open \"" + os.path.abspath(self.fileName) + "\""+" alias "+self.alias
         self._processWindowsCommand(str1)
-        str1="set "+alias+" time format milliseconds"
-        self._processWindowsCommand(str1)
-        str1="status "+alias+" length"
-        durationInMS=self._processWindowsCommand(str1)
-        str1="play "+alias+" from 0 to " + str(durationInMS.decode())
-        self._processWindowsCommand(str1)
-
-        if block==True:
-            sleep(float(durationInMS) / 1000.0)
-            str1="stop "+alias
+        
+        #use the wait feature to block or not block when constructing mciSendString command
+        if block==False:
+            str1="play "+self.alias
+            #play the sound
             self._processWindowsCommand(str1)
-            str1="close "+alias
-            self._processWindowsCommand(str1)
-
         else:
-            self.alias=alias
-            self.durationInMS=durationInMS
-            T=Thread(target=self._closeAliasAfterDuration)
-            T.setDaemon(True)
-            T.start() 
-            self.P=alias
-            return self.P
+            #construct mciSendString command to wait i.e. blocking
+            str1="play "+alias +" wait"
+            #play the sound (blocking)
+            self._processWindowsCommand(str1)
+            #stop and close the sound after done
+            str1="stop "+self.alias
+            self._processWindowsCommand(str1)
+            str1="close "+self.alias
+            self._processWindowsCommand(str1)
+
+        #return the alias of the sound
+        return self.alias
 
     # this function uses the mci/windows api with a repeat call to loop sound
     def loopsound(self,fileName):
-        alias = 'loopalias_' + str(random())
-        """
-        print(fileName[-4:])
-        if fileName[-4:]==".mp3":
-            str1="open \"" + os.path.abspath(fileName) + "\" type mpegvideo alias " + alias
-        elif fileName[-4:]==".wav":
-            str1="open \"" + os.path.abspath(fileName) + "\" type waveaudio alias " + alias
-        else:
-            str1="open \"" + os.path.abspath(fileName) + "\" type mpegvideo alias " + alias
-        print(str1)
-        """
-        str1="open \"" + os.path.abspath(fileName) + "\" type mpegvideo alias " + alias
+        self.loopAlias = 'loopalias_' + str(random())
+        str1="open \"" + os.path.abspath(fileName) + "\" type mpegvideo alias " + self.loopAlias
         self._processWindowsCommand(str1)
-        str1="play " + alias + " repeat"
+        str1="play " + self.loopAlias + " repeat"
         self._processWindowsCommand(str1)
-        self.P=alias
-        return self.P
+        return self.loopAlias
 
     # issue stop and close commands using the sound's alias
     def stopsound(self,sound):
