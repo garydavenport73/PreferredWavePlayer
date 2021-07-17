@@ -18,13 +18,13 @@ In a nutshell:
 
 To use the module simply add:
 ```
-from preferredwave.preferredwaveplayer import *
+from preferredwaveplayer import *
 ```
 and this will import all its functions.
 
 The module essentially contains 3 functions for playing .wav files:
 ```
-playwave("yourfilename.wav")
+yourSound=playwave("yourfilename.wav") #or just playwave("yourfilename.wav")
 
 stopwave(yourSound)
 
@@ -137,7 +137,7 @@ See https://pypi.org/project/oswaveplayer/ for an example.
 This is not a bad approach, but there is a little delay with the sound launch using the command line version.  This may not be a big issue for you when playing background music.  Another way to play multiple background sounds at once would be to use another module or to add the oswaveplayer to your project with the import statement:
 
 ```
-from oswave import oswaveplayer        #(this can be installed with "pip install oswaveplayer")
+from oswaveplayer import oswaveplayer        #(this can be installed with "pip install oswaveplayer")
 ```
 then use:
 ```
@@ -164,6 +164,6 @@ module can be used in place of the playsound module (https://github.com/TaylorSM
 
 Use:
 ```
-from preferredwave.preferredwaveplayer import playsound
+from preferredwaveplayer import playsound
 ```
 for backwards compatibility with the playsound module - .wav files only.
